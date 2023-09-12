@@ -1,6 +1,12 @@
 <h1>Should i take a umbrella</h1>
 <dl>
   <dt>User's Location</dt>
-  <dd><%=  %></dd>
+  <dd><%= @user_location %></dd>
+  <dt>Longitude and Latitude</dt>
+  <dd><%= @long_lat %></dd>
+  <dt>Tempature</dt>
+  <dd><%= @temperature_string %></dd>
+  <dt>Do you need an umbrella </dt>
+  <dd><%= @answer %></dd>
 </dl>
 <a href="/umbrella">Go bacl</a>
