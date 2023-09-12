@@ -2,7 +2,6 @@ require "sinatra"
 require "sinatra/reloader"
 require "http"
 require "sinatra/cookies"
-
 get("/") do
   cookies["color"] = "pink"
   "
@@ -10,6 +9,12 @@ get("/") do
   <p>Define some routes in app.rb</p>
   "
 end
+get("/openai") do
+  erb(:single_ai)
+end
+get("/openai_record") do
+end
+
 get("/umbrella") do
 erb(:umbrella_form)
 end
@@ -54,8 +59,4 @@ if(will_rain >= 1)
   @answer = "You don't need an Umbrella"
   end
 erb(:umbrella_results)
-end
-post("/openai") do
-end
-post("/openai_record") do
 end
