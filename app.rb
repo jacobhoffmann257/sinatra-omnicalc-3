@@ -2,6 +2,7 @@ require "sinatra"
 require "sinatra/reloader"
 require "http"
 require "sinatra/cookies"
+require "json"
 get("/") do
   cookies["color"] = "pink"
   "
@@ -11,6 +12,39 @@ get("/") do
 end
 get("/openai") do
   erb(:single_ai)
+end
+post("/single_ai_result") do
+  
+  @message = params.fetch("message")
+  
+  ai_key = ENV.fetch("OPEN_KEY").to_s
+ 
+  request_headers_hash = {
+  "Authorization" => "Bearer #{ai_key}",
+  "content-type" => "application/json"
+}
+  request_body_hash = {"model" => "gpt-3.5-turbo",
+  "messages"=> [
+    {
+      "role" => "system",
+      "content" => "You are a helpful assistant who like Shakespeare"},
+      {
+        "role" => "user",
+        "content" => "#{@message}"
+      }
+  ]
+  }
+  request_body_json = JSON.generate(request_body_hash)
+
+  raw_response_ai = HTTP.headers(request_headers_hash).post("https://api.openai.com/v1/chat/completions", :body => request_body_json).to_s
+  parsed_response = JSON.parse(raw_response_ai)
+  
+  choices_ai = parsed_response.fetch("choices")
+  content_ai = choices_ai[0]
+  messages_ai = content_ai.fetch("message")
+  @answer_ai = messages_ai.fetch("content") 
+  
+  erb(:ai_result)
 end
 get("/openai_record") do
 end
