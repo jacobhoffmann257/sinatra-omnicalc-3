@@ -48,12 +48,51 @@ post("/single_ai_result") do
   erb(:ai_result)
 end
 get("/openai_record") do
+erb(:openai_recorded)
+end
+post("/openai_record") do
   raw_history = cookies["aihistory"]
-  if (raw_history = "")
-    cookies["aihistory"] = "{ , }"
+  if (raw_history == "")
+    cookies["aihistory"] = ""
   else
-    @parsed_history = JSON.parse(raw_history)
+    @message = params.fetch("message")
+  
+    ai_key = ENV.fetch("OPEN_KEY").to_s
+   
+    request_headers_hash = {
+    "Authorization" => "Bearer #{ai_key}",
+    "content-type" => "application/json"
+  }
+    request_body_hash = {"model" => "gpt-3.5-turbo",
+    "messages"=> [
+      {
+        "role" => "system",
+        "content" => "You are a helpful assistant who like Shakespeare"},
+        {
+          "role" => "user",
+          "content" => "#{@message}"
+        }
+    ]
+    }
+    request_body_json = JSON.generate(request_body_hash)
+  
+    raw_response_ai = HTTP.headers(request_headers_hash).post("https://api.openai.com/v1/chat/completions", :body => request_body_json).to_s
+    parsed_response = JSON.parse(raw_response_ai)
+    
+    choices_ai = parsed_response.fetch("choices")
+    content_ai = choices_ai[0]
+    messages_ai = content_ai.fetch("message")
+    @answer_ai = messages_ai.fetch("content")
+
+    hashed = {"message" => "#{@message}", "response" => "#{@answer_ai}"}
+    flattened = JSON.generate(hashed)
+    cookies["aihistory"]= flattened
+    cooked= cookies.fetch("aihistory")
+    puts cooked
+    @parsed_history = JSON.parse(cooked)
+    puts @answer_ai
   end
+ 
   erb(:openai_recorded)
 end
 
