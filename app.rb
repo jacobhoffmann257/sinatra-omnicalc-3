@@ -3,6 +3,7 @@ require "sinatra/reloader"
 require "http"
 require "sinatra/cookies"
 require "json"
+
 get("/") do
   cookies["color"] = "pink"
   "
@@ -10,7 +11,7 @@ get("/") do
   <p>Define some routes in app.rb</p>
   "
 end
-get("/openai") do
+get("/openai") do  
   erb(:single_ai)
 end
 post("/single_ai_result") do
@@ -47,6 +48,14 @@ post("/single_ai_result") do
   erb(:ai_result)
 end
 get("/openai_record") do
+  raw_history = cookies["aihistory"]
+  if (raw_history)
+    cookies["aihistory"] = ""
+  else
+    
+    @parsed_history = JSON.parse(raw_history)
+  end
+  erb(:openai_recorded)
 end
 
 get("/umbrella") do
