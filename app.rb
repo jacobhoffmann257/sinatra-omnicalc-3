@@ -49,10 +49,9 @@ post("/single_ai_result") do
 end
 get("/openai_record") do
   raw_history = cookies["aihistory"]
-  if (raw_history)
-    cookies["aihistory"] = ""
+  if (raw_history = "")
+    cookies["aihistory"] = "{ , }"
   else
-    
     @parsed_history = JSON.parse(raw_history)
   end
   erb(:openai_recorded)
