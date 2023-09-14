@@ -95,17 +95,17 @@ post("/openai_record") do
     #cooked = JSON.parse(flattened)
     cookies.store("aihistory", flattened)
     prep = cookies["aihistory"]
-    cooked = prep.gsub("%7B", "{")
+    cooked = prep.gsub("%7B%22", "'{")
     cooked = cooked.gsub("%22", "\"")
     cooked = cooked.gsub("%3A","=>")
     cooked = cooked.gsub("%2C", ",")
     cooked = cooked.gsub("%21", "!")
     cooked = cooked.gsub("+", " ")
     cooked = cooked.gsub("%3F", "?")
-    cooked = cooked.gsub("%7D", "}")
+    cooked = cooked.gsub("%7D", "}'")
    recorded = JSON.parse(cooked)
-    pp cooked
-    puts cooked.class
+    puts recorded
+    puts recorded.class
   end
  
   erb(:openai_recorded)
