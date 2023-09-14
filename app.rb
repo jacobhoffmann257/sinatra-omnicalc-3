@@ -3,7 +3,12 @@ require "sinatra/reloader"
 require "http"
 require "sinatra/cookies"
 require "json"
-
+require "byebug"
+require "better_errors"
+require "binding_of_caller"
+use(BetterErrors::Middleware)
+BetterErrors.application_root = __dir__
+BetterErrors::Middleware.allow_ip!('0.0.0.0/0.0.0.0')
 get("/") do
   cookies["color"] = "pink"
   "
@@ -85,12 +90,22 @@ post("/openai_record") do
     @answer_ai = messages_ai.fetch("content")
 
     hashed = {"message" => "#{@message}", "response" => "#{@answer_ai}"}
+   #flattened = JSON.generate(hashed)
     flattened = JSON.generate(hashed)
-    cookies["aihistory"]= flattened
-    cooked= cookies.fetch("aihistory")
-    puts cooked
-    @parsed_history = JSON.parse(cooked)
-    puts @answer_ai
+    #cooked = JSON.parse(flattened)
+    cookies.store("aihistory", flattened)
+    prep = cookies["aihistory"]
+    cooked = prep.gsub("%7B", "{")
+    cooked = cooked.gsub("%22", "\"")
+    cooked = cooked.gsub("%3A","=>")
+    cooked = cooked.gsub("%2C", ",")
+    cooked = cooked.gsub("%21", "!")
+    cooked = cooked.gsub("+", " ")
+    cooked = cooked.gsub("%3F", "?")
+    cooked = cooked.gsub("%7D", "}")
+   recorded = JSON.parse(cooked)
+    pp cooked
+    puts cooked.class
   end
  
   erb(:openai_recorded)
